@@ -11,12 +11,24 @@ export default function () {
   });
   renderer.outputEncoding = THREE.sRGBEncoding;
 
+  const scene = new THREE.Scene();
+
   const textureLoader = new THREE.TextureLoader();
+  const cubeTextureLoader = new THREE.CubeTextureLoader();
+  const enviromentMap = cubeTextureLoader.load([
+    'assets/enviroments/px.png',
+    'assets/enviroments/nx.png',
+    'assets/enviroments/py.png',
+    'assets/enviroments/ny.png',
+    'assets/enviroments/pz.png',
+    'assets/enviroments/nz.png',
+  ]);
+  enviromentMap.encoding = THREE.sRGBEncoding;
+  scene.background = enviromentMap;
+  scene.environment = enviromentMap;
 
   const container = document.querySelector('#container');
   container.appendChild(renderer.domElement);
-
-  const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, ww/wh, 0.1, 100);
   camera.position.set(0, 0, 3);
 
@@ -33,12 +45,32 @@ export default function () {
   const createEarth1 = () => {
     const material = new THREE.MeshStandardMaterial({ 
       map: textureLoader.load('assets/earth-night-map.jpg'),
-      // roughness: 0.7,
-      // metalness: 1,
+      opacity: 0.6,
+      transparent: true,
     });
     const geometry = new THREE.SphereGeometry(1.3, 30, 30);
     const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+
+    return mesh;
+  }
+
+  const createEarth2 = () => {
+    const material = new THREE.MeshStandardMaterial({ 
+      map: textureLoader.load('assets/earth-night-map.jpg'),
+      opacity: 0.9,
+      transparent: true,
+      side: THREE.BackSide,
+    });
+    const geometry = new THREE.SphereGeometry(1.5, 30, 30);
+    const mesh = new THREE.Mesh(geometry, material);
+    
+    return mesh;
+  }
+
+  const create = () => {
+    const earth1 = createEarth1();
+    const earth2 = createEarth2();
+    scene.add(earth1, earth2);
   }
 
   const resize = () => {
@@ -65,8 +97,8 @@ export default function () {
   }
 
   const initialize = () => {
-    createEarth1();
     addLight();
+    create();
     addEvent();
     resize();
     draw();
