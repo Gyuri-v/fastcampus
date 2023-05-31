@@ -9,6 +9,9 @@ export default function () {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const textureLoader = new THREE.TextureLoader();
 
   const container = document.querySelector('#container');
   container.appendChild(renderer.domElement);
@@ -21,11 +24,20 @@ export default function () {
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
 
-  const createObject = () => {
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const mesh = new THREE.Mesh(geometry, material);
+  const addLight = () => {
+    const light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(2.65, 2.13, 1.02);
+    scene.add(light);
+  }
 
+  const createEarth1 = () => {
+    const material = new THREE.MeshStandardMaterial({ 
+      map: textureLoader.load('assets/earth-night-map.jpg'),
+      // roughness: 0.7,
+      // metalness: 1,
+    });
+    const geometry = new THREE.SphereGeometry(1.3, 30, 30);
+    const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
   }
 
@@ -53,7 +65,8 @@ export default function () {
   }
 
   const initialize = () => {
-    createObject();
+    createEarth1();
+    addLight();
     addEvent();
     resize();
     draw();
