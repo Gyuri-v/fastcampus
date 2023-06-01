@@ -97,12 +97,14 @@ export default function () {
 
   const createPoint1 = () => {
     const point = {
-      // 서울 위도, 경도
+      // 서울 위도, 경도 / Math.PI / 180 = 1도
       lat: 37.56668 * (Math.PI / 180),
       lng: 126.97841 * (Math.PI / 180)
     }
 
-    const position = convertLatlngToPos(point, 1.3); // earth1에 위치시킬건데, 스케일이 1.3이니까.
+    const position = convertLatlngToPos(point, 1.3); 
+    // convertLatlngToPos : 위도경도를 position 값으로 변환 
+    // 1.3 : radius - earth1에 위치시킬건데, 스케일이 1.3이니까.
 
     const mesh = new THREE.Mesh(
       new THREE.TorusGeometry(0.02, 0.002, 20, 20),
@@ -121,7 +123,9 @@ export default function () {
       lng: -0.196481 * (Math.PI / 180)
     }
 
-    const position = convertLatlngToPos(point, 1.3); // earth1에 위치시킬건데, 스케일이 1.3이니까.
+    const position = convertLatlngToPos(point, 1.3); 
+    // convertLatlngToPos : 위도경도를 position 값으로 변환 
+    // 1.3 : radius - earth1에 위치시킬건데, 스케일이 1.3이니까.
 
     const mesh = new THREE.Mesh(
       new THREE.TorusGeometry(0.02, 0.002, 20, 20),
@@ -136,6 +140,8 @@ export default function () {
     const points = [];
 
     for (let i = 0; i < 100; i++) {
+      // lerpVectors 를 써서 position을 자연스럽게 연결  -- 인자들 : pos1, pos2 사이에 i번째에 해당하는 정점의 좌표를 구하는 것
+      // lerpVectors : 두 숫자사이에 어떤 숫자가 있는지 추정해서 반환
       const pos = new THREE.Vector3().lerpVectors(pos1, pos2, i/100);
       // 정규화시키지 1을 초과하지 않도록 -- 이렇게 해야 구의 반지름 크기만큼 쉽게 구해서 사용할 수 있음
       pos.normalize();
