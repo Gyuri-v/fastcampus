@@ -1,6 +1,17 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { convertLatlngToPos, getGradientCanvas } from './utils';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';  
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';  
+import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass';  
+import { HalftonePass } from 'three/examples/jsm/postprocessing/HalftonePass';  
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';  
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';  
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';  
 
 export default function () {
   let ww, wh;
@@ -10,10 +21,10 @@ export default function () {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
-  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.outputEncoding = THREE.sRGBEncoding; 
+  const renderTarget = new THREE.WebGLRenderTarget( ww, wh, { samples: 2 } );
 
-  const scene = new THREE.Scene();
-
+  const effectComposer = new EffectComposer(renderer, renderTarget);
   const textureLoader = new THREE.TextureLoader();
   const cubeTextureLoader = new THREE.CubeTextureLoader();
   const enviromentMap = cubeTextureLoader.load([
@@ -25,6 +36,8 @@ export default function () {
     'assets/enviroments/nz.png',
   ]);
   enviromentMap.encoding = THREE.sRGBEncoding;
+
+  const scene = new THREE.Scene();
   scene.background = enviromentMap;
   scene.environment = enviromentMap;
 
@@ -35,12 +48,58 @@ export default function () {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.1;
+  controls.dampingFactor = 0.01;
 
   const addLight = () => {
     const light = new THREE.DirectionalLight(0xffffff);
     light.position.set(2.65, 2.13, 1.02);
     scene.add(light);
+  }
+
+  const addPostEffects = (obj) => {
+    const {earthGroup} = obj;
+
+    const renderPass = new RenderPass(scene, camera);
+    effectComposer.addPass(renderPass);
+
+    const filmPass = new FilmPass(1, 1, 100, 0);
+    // effectComposer.addPass(filmPass);
+
+    const glitchPass = new GlitchPass();
+    // effectComposer.addPass(glitchPass);
+    // glitchPass.goWild = true;
+
+    const afterimagePass = new AfterimagePass(0.96);
+    // effectComposer.addPass(afterimagePass);
+
+    const halftonePass = new HalftonePass(ww, wh, {
+      radius: 10 ,// 점의 크기
+      shape: 1,   // 점의 모양 클수록 타원 -> 선 느낌으로 변함
+      scatter: 0, // 점의 흩어짐 
+      blending: 1.5, // 효과를 얼마나 기존 텍스쳐에 합산할 것인지 0~1
+    });
+    // effectComposer.addPass(halftonePass);
+
+    const unrealBloomPass = new UnrealBloomPass(
+      new THREE.Vector2(ww, wh)
+    );
+    // unrealBloomPass.strength = 1; // 빛의 밝기 조정
+    // unrealBloomPass.threshold = 0.1; // 임계값 설정 - 사물의 빛나는 영역
+    // unrealBloomPass.radius = 1; // 빛이 번지는 정도
+    // effectComposer.addPass(unrealBloomPass);
+
+    const outlinePass = new OutlinePass( new THREE.Vector2(ww, wh), scene, camera );
+    outlinePass.selectedObjects = [...earthGroup.children];
+    outlinePass.edgeStrength = 5; // 선의 굵기
+    outlinePass.edgeGlow = 5; // 선의 빛나는 정도
+    outlinePass.pulsePeriod = 1; // 심장과 같이 커졌다 작아졌다 함
+    effectComposer.addPass(outlinePass);
+
+    const smaaPass = new SMAAPass();
+    effectComposer.addPass(smaaPass);
+
+    const shaderPass = new ShaderPass(GammaCorrectionShader);
+    effectComposer.addPass(shaderPass);
   }
 
   const createEarth1 = () => {
@@ -82,7 +141,7 @@ export default function () {
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
-      size: 0.05, 
+      size: 0.01, 
       transparent: true,
       map: textureLoader.load('assets/particle.png'),
       alphaMap: textureLoader.load('assets/particle.png'),
@@ -195,6 +254,7 @@ export default function () {
 
     renderer.setSize(ww, wh);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    effectComposer.setSize(ww, wh);
   }
 
   const addEvent = () => {
@@ -210,15 +270,18 @@ export default function () {
     star.rotation.y += 0.001;
 
     controls.update();
-    renderer.render(scene, camera);
+    effectComposer.render();
+    // renderer.render(scene, camera);
     requestAnimationFrame(() => {
       draw(obj);
     })
   }
 
   const initialize = () => {
-    addLight();
     const obj = create();
+
+    addLight();
+    addPostEffects(obj);
     addEvent();
     resize();
     draw(obj);
