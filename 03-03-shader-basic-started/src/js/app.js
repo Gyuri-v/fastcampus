@@ -17,7 +17,7 @@ export default function () {
     varying vec2 vPosition; // 값 넘겨주기
 
     void main() {
-      vec2 newPosition = (position + 1.0) / 2.0;
+      vec2 newPosition = (position + 1.0) / 2.0; // 0~1
       gl_Position = vec4(position, 0.0, 1.0); // 정점 셰이더의 특수한 절약변수, 화면의 픽셀 결정 & position 은 아래에 넘겨준 position 값 // (x, y, z, 거리&배율)-x, y 통합 가능
 
       vPosition = newPosition;
@@ -46,7 +46,7 @@ export default function () {
   gl.useProgram(program); // 이 프로그램을 사용
 
   // 정점 데이터 선언
-  const vertices = new Float32Array([-1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, -1]);
+  const vertices = new Float32Array([-1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, -1]); // *아래 이미지 참고
   const vertexBuffer = gl.createBuffer(); // vertex shader 에 데이터를 넘겨주려면 buffer형태로 넘겨줘야함
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); // ARRAY_BUFFER 에 vertexBuffer를 연결해주겠다는 binding 처리
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); // 버퍼데이터로 vertices 를 static형태로 넘겨주겠다.
