@@ -9,6 +9,8 @@ export default function () {
   });
   renderer.setClearColor(0x333333, 1);
 
+  const clock = new THREE.Clock();
+
   const container = document.querySelector('#container');
 
   container.appendChild(renderer.domElement);
@@ -32,19 +34,30 @@ export default function () {
   controls.dampingFactor = 0.1;
 
   const createObject = () => {
-    // RawShaderMaterial : uniforms 나 shader 값이 따로 정의되어 있지 않음
     const material = new THREE.RawShaderMaterial({ 
-      wireframe: false,
+      // wireframe: false,
       side: THREE.DoubleSide,
-      color: 0x00ff00,
+      uniforms: {
+        uTime: { value: 0 }
+      },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
     });
     const geometry = new THREE.PlaneGeometry(1, 1, 16, 16);
-    console.log(geometry);
+    const verticesCount = geometry.attributes.position.count;
+    const randomPositions = new Float32Array(verticesCount);
+    for (let i = 0; i < verticesCount; i++) {
+      randomPositions[i] = (Math.random() - 0.5) * 2.0;
+    }
+
+    geometry.setAttribute('aRandomPosition', new THREE.BufferAttribute(randomPositions, 1));
+
     const mesh = new THREE.Mesh(geometry, material);
+    // mesh.position.y = 1.0;
 
     scene.add(mesh);
+
+    return mesh;
   };
 
   const resize = () => {
@@ -62,19 +75,22 @@ export default function () {
     window.addEventListener('resize', resize);
   };
 
-  const draw = () => {
+  const draw = (mesh) => {
     controls.update();
     renderer.render(scene, camera);
+
+    mesh.material.uniforms.uTime.value = clock.getElapsedTime();
+
     requestAnimationFrame(() => {
-      draw();
+      draw(mesh);
     });
   };
 
   const initialize = () => {
-    createObject();
+    const mesh = createObject();
     addEvent();
     resize();
-    draw();
+    draw(mesh);
   };
 
   initialize();
