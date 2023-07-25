@@ -7,7 +7,7 @@ export default function () {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
-  renderer.setClearColor(0x333333, 1);
+  renderer.setClearColor(0x000000, 1);
 
   const container = document.querySelector('#container');
 
@@ -18,6 +18,7 @@ export default function () {
     height: window.innerHeight,
   };
 
+  const textureLoader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
     75,
@@ -31,19 +32,30 @@ export default function () {
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
 
-  const createObject = () => {
-    const material = new THREE.RawShaderMaterial({
+  const createEarth = () => {
+    const material = new THREE.ShaderMaterial({
       // wireframe: true,
+      // map: textureLoader.load('assets/earth_specular_map.png'),
+      uniforms: {
+        uTexture: { value: textureLoader.load('assets/earth_specular_map.png') },
+      },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      transparent: true,
     });
-    const geometry = new THREE.PlaneGeometry(1, 1, 16, 16);
+    const geometry = new THREE.SphereGeometry(0.8, 30, 30);
 
     const mesh = new THREE.Mesh(geometry, material);
 
-    scene.add(mesh);
+    return mesh;
   };
+
+  const create = () => {
+    const earth = createEarth();
+
+    scene.add(earth);
+  }
 
   const resize = () => {
     canvasSize.width = window.innerWidth;
@@ -69,7 +81,7 @@ export default function () {
   };
 
   const initialize = () => {
-    createObject();
+    create();
     addEvent();
     resize();
     draw();
