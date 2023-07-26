@@ -20,6 +20,7 @@ void main()
 
     // vec3 finalCol = step(0.9, col1) * step(0.9, col2);
     vec3 finalCol = mix(greenColor, vec3(0.0), step(0.1, dist));
+    finalCol.g += map.r * 2.0; // 경계선 명확하게 만들기
 
-    gl_FragColor = vec4(finalCol, alpha);
+    gl_FragColor = vec4(finalCol, alpha * finalCol.g); // alpha * finalCol.g : 육지안에 도트와 도트 사이에 검은색이 아닌 투명도 적용
 }
