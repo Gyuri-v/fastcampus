@@ -13,14 +13,13 @@ void main()
 
     gl_FragColor = vec4(col, alpha);
 
-    float x = vUv.x;
-    float y = vUv.y;
+    float x = fract(vUv.x * 100.0);
+    float y = fract(vUv.y * 100.0);
 
-    vec3 col1 = vec3(fract(x * 100.0));
-    vec3 col2 = vec3(fract(y * 100.0));
+    float dist = length(vec2(x, y) - 0.5); // 0.5에서부터 x,y가 얼마나 먼지
 
-    vec3 finalCol = step(0.9, col1) * step(0.9, col2);
-    finalCol *= greenColor;
+    // vec3 finalCol = step(0.9, col1) * step(0.9, col2);
+    vec3 finalCol = mix(greenColor, vec3(0.0), step(0.1, dist));
 
     gl_FragColor = vec4(finalCol, alpha);
 }
