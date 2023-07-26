@@ -8,14 +8,19 @@ void main()
     vec3 col = 1.0 - map.rgb;
     float alpha = col.r;
 
-    // if ( col.r <= 0.8 ) {
-    //     discard; 
-    // } 
-    // 정밀하지 않음. r이 회색인 부분도 있어서
-    // 조건문도 계속 계산해야하므로 col.r 을 사용
-
     vec3 greenColor = vec3(0.0, 1.0, 0.0);
     col = greenColor;
 
     gl_FragColor = vec4(col, alpha);
+
+    float x = vUv.x;
+    float y = vUv.y;
+
+    vec3 col1 = vec3(fract(x * 100.0));
+    vec3 col2 = vec3(fract(y * 100.0));
+
+    vec3 finalCol = step(0.9, col1) * step(0.9, col2);
+    finalCol *= greenColor;
+
+    gl_FragColor = vec4(finalCol, alpha);
 }

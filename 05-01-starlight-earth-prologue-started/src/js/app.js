@@ -45,6 +45,7 @@ export default function () {
       transparent: true,
     });
     const geometry = new THREE.SphereGeometry(0.8, 30, 30);
+    // const geometry = new THREE.PlaneGeometry(1, 1);
 
     const mesh = new THREE.Mesh(geometry, material);
 
