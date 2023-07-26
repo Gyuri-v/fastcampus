@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import vertexShader from '../shaders/vertex.glsl?raw';
-import fragmentShader from '../shaders/fragment.glsl?raw';
+import vertexShader from '../shaders/earth/vertex.glsl?raw';
+import fragmentShader from '../shaders/earth/fragment.glsl?raw';
 
 export default function () {
   const renderer = new THREE.WebGLRenderer({
