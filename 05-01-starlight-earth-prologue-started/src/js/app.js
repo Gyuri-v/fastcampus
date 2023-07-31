@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import vertexShader from '../shaders/earth/vertex.glsl?raw';
 import fragmentShader from '../shaders/earth/fragment.glsl?raw';
+import pointsVertexShader from '../shaders/earthPoints/vertex.glsl?raw';
+import pointsFragmentShader from '../shaders/earthPoints/fragment.glsl?raw';
 
 export default function () {
   const renderer = new THREE.WebGLRenderer({
@@ -52,10 +54,31 @@ export default function () {
     return mesh;
   };
 
+  const createEarthPoints = () => {
+    const material = new THREE.ShaderMaterial({
+      wireframe: true,
+      uniforms: {
+        uTexture: { value: textureLoader.load('assets/earth_specular_map.png') },
+      },
+      vertexShader: pointsVertexShader,
+      fragmentShader: pointsFragmentShader,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+
+    const geometry = new THREE.IcosahedronGeometry(0.9, 40, 40); 
+    // IcosahedronGeometry - spheregeomatry와 위치가 조금 다를 수 있음 / spheregeomatry 보다 삼각형이 균일해서 포인트가 균등하게 찍힘
+    geometry.rotateY(-Math.PI);
+    const mesh = new THREE.Points(geometry, material);
+
+    return mesh;
+  }
+
   const create = () => {
     const earth = createEarth();
+    const earthPoints = createEarthPoints();
 
-    scene.add(earth);
+    scene.add(earth, earthPoints);
   }
 
   const resize = () => {
