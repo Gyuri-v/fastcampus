@@ -16,11 +16,7 @@ void main()
     float x = fract(vUv.x * 100.0);
     float y = fract(vUv.y * 100.0);
 
-    float dist = length(vec2(x, y) - 0.5); // 0.5에서부터 x,y가 얼마나 먼지
-
-    // vec3 finalCol = step(0.9, col1) * step(0.9, col2);
-    vec3 finalCol = mix(greenColor, vec3(0.0), step(0.1, dist));
-    finalCol.g += map.r * 2.0; // 경계선 명확하게 만들기
+    vec3 finalCol = map.r * greenColor * 2.0;
 
     gl_FragColor = vec4(finalCol, alpha * finalCol.g); // alpha * finalCol.g : 육지안에 도트와 도트 사이에 검은색이 아닌 투명도 적용
 }

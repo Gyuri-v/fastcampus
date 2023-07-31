@@ -64,9 +64,10 @@ export default function () {
       fragmentShader: pointsFragmentShader,
       side: THREE.DoubleSide,
       transparent: true,
+      depthWrite: false,
     });
 
-    const geometry = new THREE.IcosahedronGeometry(0.9, 40, 40); 
+    const geometry = new THREE.IcosahedronGeometry(0.8, 30, 30); 
     // IcosahedronGeometry - spheregeomatry와 위치가 조금 다를 수 있음 / spheregeomatry 보다 삼각형이 균일해서 포인트가 균등하게 찍힘
     geometry.rotateY(-Math.PI);
     const mesh = new THREE.Points(geometry, material);
