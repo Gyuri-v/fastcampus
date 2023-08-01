@@ -4,6 +4,9 @@ import vertexShader from '../shaders/earth/vertex.glsl?raw';
 import fragmentShader from '../shaders/earth/fragment.glsl?raw';
 import pointsVertexShader from '../shaders/earthPoints/vertex.glsl?raw';
 import pointsFragmentShader from '../shaders/earthPoints/fragment.glsl?raw';
+import glowVertexShader from '../shaders/earthGlow/vertex.glsl?raw';
+import glowFragmentShader from '../shaders/earthGlow/fragment.glsl?raw';
+import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
 
 export default function () {
   const renderer = new THREE.WebGLRenderer({
@@ -75,11 +78,37 @@ export default function () {
     return mesh;
   }
 
+  const createEarthGlow = () => {
+    const material = new THREE.ShaderMaterial({
+      // wireframe: true,
+      uniforms: {
+        uZoom: { value: 1, }
+      },
+      vertexShader: glowVertexShader,
+      fragmentShader: glowFragmentShader,
+      side: THREE.BackSide,
+      transparent: true,
+    });
+    const geometry = new THREE.SphereGeometry(1, 40, 40);
+    const mesh = new THREE.Mesh(geometry, material);
+    
+    return mesh;
+  }
+
   const create = () => {
     const earth = createEarth();
     const earthPoints = createEarthPoints();
+    const earthGlow = createEarthGlow();
+    // const glowNormalHelper = new VertexNormalsHelper(earthGlow, 0.1); 
+    // 수직점의 방향으로 정점이 어느 방향을 향해 있는지 알 수 있음 
+    // -> 특정 좌표에서 해당 메쉬로 빛을 쏴서 빛의 벡터 정보와 mesh의 노멀값을 비교해 해당 정점에 속한 애의 밝기 조절을 함 
+    // -> 이런 과정을 "내적" : 두 벡터의 방향이 얼마나 일치하는지 알기 / 빛이 물체에 비치는 정도를 구할때도 사용
 
-    scene.add(earth, earthPoints);
+    scene.add(earth, earthPoints, earthGlow);
+
+    return {
+      earthGlow
+    }
   }
 
   const resize = () => {
@@ -97,19 +126,24 @@ export default function () {
     window.addEventListener('resize', resize);
   };
 
-  const draw = () => {
+  const draw = (obj) => {
+    const {earthGlow} = obj;
+
     controls.update();
     renderer.render(scene, camera);
+
+    earthGlow.material.uniforms.uZoom.value = controls.target.distanceTo(controls.object.position);
+
     requestAnimationFrame(() => {
-      draw();
+      draw(obj);
     });
   };
 
   const initialize = () => {
-    create();
+    const obj = create();
     addEvent();
     resize();
-    draw();
+    draw(obj);
   };
 
   initialize();
