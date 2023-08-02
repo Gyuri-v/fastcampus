@@ -23,6 +23,7 @@ export default function () {
     height: window.innerHeight,
   };
 
+  const clock = new THREE.Clock();
   const textureLoader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
@@ -62,6 +63,7 @@ export default function () {
       wireframe: true,
       uniforms: {
         uTexture: { value: textureLoader.load('assets/earth_specular_map.png') },
+        uTime: { value: 0 }
       },
       vertexShader: pointsVertexShader,
       fragmentShader: pointsFragmentShader,
@@ -69,6 +71,7 @@ export default function () {
       transparent: true,
       depthWrite: false,
       depthTest: false,
+      blending: THREE.AdditiveBlending
     });
 
     const geometry = new THREE.IcosahedronGeometry(0.8, 30, 30); 
@@ -108,6 +111,8 @@ export default function () {
     scene.add(earth, earthPoints, earthGlow);
 
     return {
+      earth,
+      earthPoints,
       earthGlow
     }
   }
@@ -128,12 +133,18 @@ export default function () {
   };
 
   const draw = (obj) => {
-    const {earthGlow} = obj;
+    const {earth, earthPoints, earthGlow} = obj;
 
     controls.update();
     renderer.render(scene, camera);
 
+    earth.rotation.x += 0.0005;
+    earth.rotation.y += 0.0005;
+    earthPoints.rotation.x += 0.0005;
+    earthPoints.rotation.y += 0.0005;
+
     earthGlow.material.uniforms.uZoom.value = controls.target.distanceTo(controls.object.position);
+    earthPoints.material.uniforms.uTime.value = clock.getElapsedTime();
 
     requestAnimationFrame(() => {
       draw(obj);

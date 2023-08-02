@@ -7,7 +7,7 @@ void main()
     float hiddeness = 0.45; // 먼 곳은 더 투명하게
     float dist = (1.0 / length(mvPosition.xyz)) - hiddeness;
 
-    gl_PointSize = 10.0;
+    gl_PointSize = 20.0;
     gl_Position = projectionMatrix * mvPosition;
 
     vUv = uv;
