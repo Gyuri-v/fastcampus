@@ -68,6 +68,7 @@ export default function () {
       side: THREE.DoubleSide,
       transparent: true,
       depthWrite: false,
+      depthTest: false,
     });
 
     const geometry = new THREE.IcosahedronGeometry(0.8, 30, 30); 

@@ -1,6 +1,7 @@
 uniform sampler2D uTexture;
 
 varying vec2 vUv;
+varying float vDistance;
 
 // 포인트에서 멀어질수록 프림처리 되도록 하는 함수
 float circle (vec2 coord, float r) {
@@ -13,20 +14,15 @@ float circle (vec2 coord, float r) {
 
 void main()
 {
-    float strength = circle(gl_PointCoord, 0.01);
-
     vec4 map = texture2D(uTexture, vUv);
     vec3 col = 1.0 - map.rgb;
-    float alpha = col.r * strength; // strength가 0일때는 alpha가 0이 되어 투명해짐 - 가운데만 투명인 -> strength를 1.0 - step(~)으로 바꿔줘서 가운데만 초록색인
 
-    float x = fract(vUv.x * 100.0);
-    float y = fract(vUv.y * 100.0);
-
-    float dist = length(vec2(x, y) - 0.5); 
+    float strength = circle(gl_PointCoord, 0.01);
+    float alpha = col.r * strength * vDistance;
 
     vec3 greenColor = vec3(0.0, 1.0, 0.0);
 
-    vec3 finalCol = mix(greenColor, vec3(0.0), step(0.1, dist));
+    vec3 finalCol = greenColor;
     finalCol.g += map.r * 2.0; 
 
     gl_FragColor = vec4(greenColor, alpha);
