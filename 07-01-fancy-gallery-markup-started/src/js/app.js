@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import vertexShader from '../shaders/vertex.glsl?raw';
 import fragmentShader from '../shaders/fragment.glsl?raw';
+import ASScroll from '@ashthornton/asscroll'
+
+const asscroll = new ASScroll({
+  disableRaf: true,
+});
+asscroll.enable();
 
 export default function () {
   const renderer = new THREE.WebGLRenderer({
@@ -100,6 +106,8 @@ export default function () {
     renderer.render(scene, camera);
 
     retransform();
+    asscroll.update();
+    
     requestAnimationFrame(() => {
       draw();
     });
