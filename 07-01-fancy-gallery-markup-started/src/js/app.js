@@ -26,6 +26,8 @@ export default function () {
   camera.position.set(0, 0, 50);
   camera.fov = Math.atan(canvasSize.height / 2 / 50) * (180 / Math.PI) * 2; // 노션 참고
 
+  const imageRepository = [];
+
   const loadImages = async () => {
     const images = [...document.querySelectorAll('main .content img')];
     
@@ -44,7 +46,7 @@ export default function () {
   const createImages = (images) => {
     
     const imageMeshes = images.map(image => {
-      const {width, height, top, left} = image.getBoundingClientRect();
+      const {width, height} = image.getBoundingClientRect();
 
       const material = new THREE.ShaderMaterial({
         vertexShader: vertexShader,
@@ -54,8 +56,7 @@ export default function () {
       const geometry = new THREE.PlaneGeometry(width, height, 16, 16);
       const mesh = new THREE.Mesh(geometry, material);
 
-      mesh.position.y = canvasSize.height / 2 - height / 2  - top;
-      mesh.position.x = -canvasSize.width / 2 + width / 2 + left;
+      imageRepository.push({img: image, mesh});
       
       return mesh;
     });
@@ -82,12 +83,23 @@ export default function () {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   };
 
+  const retransform = () => {
+    imageRepository.forEach(({img, mesh}) => {
+      const {width, height, top, left} = img.getBoundingClientRect();
+
+      mesh.position.y = canvasSize.height / 2 - height / 2  - top;
+      mesh.position.x = -canvasSize.width / 2 + width / 2 + left;
+    })
+  }
+
   const addEvent = () => {
     window.addEventListener('resize', resize);
   };
 
   const draw = () => {
     renderer.render(scene, camera);
+
+    retransform();
     requestAnimationFrame(() => {
       draw();
     });
