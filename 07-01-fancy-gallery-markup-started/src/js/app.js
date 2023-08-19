@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import vertexShader from '../shaders/vertex.glsl?raw';
 import fragmentShader from '../shaders/fragment.glsl?raw';
 
@@ -7,7 +6,6 @@ export default function () {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
   });
-  renderer.setClearColor(0x333333, 1);
 
   const container = document.querySelector('#container');
 
@@ -27,13 +25,23 @@ export default function () {
   );
   camera.position.set(0, 0, 2);
 
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.1;
+  const loadImages = async () => {
+    const images = [...document.querySelectorAll('main .content img')];
+    
+    // 앞단의 async await 처럼 비동기처리로 이미지 로드체크
+    const fetchImages = images.map(image => new Promise((resolve, reject) => {
+      image.onload = resolve(image);
+      image.onerror = reject;
+    }));
 
-  const createObject = () => {
-    const material = new THREE.RawShaderMaterial({
-      // wireframe: true,
+    // 이미지가 전체 로드된 후 진행되어야 하니까 Promiss.all 사용
+    const loadedImages = await Promise.all(fetchImages);
+    
+    return loadedImages;
+  }
+
+  const createImages = (images) => {
+    const material = new THREE.ShaderMaterial({
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       side: THREE.DoubleSide
@@ -44,6 +52,12 @@ export default function () {
 
     scene.add(mesh);
   };
+
+  const create = async () => {
+    const loadedImages = await loadImages();
+    const images = createImages([...loadedImages]);
+    scene.add(images);
+  }
 
   const resize = () => {
     canvasSize.width = window.innerWidth;
@@ -61,19 +75,18 @@ export default function () {
   };
 
   const draw = () => {
-    controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(() => {
       draw();
     });
   };
 
-  const initialize = () => {
-    createObject();
+  const initialize = async () => {
+    await create();
     addEvent();
     resize();
     draw();
   };
 
-  initialize();
+  initialize().then();
 }
