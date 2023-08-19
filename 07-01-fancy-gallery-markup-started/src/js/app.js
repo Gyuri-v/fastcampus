@@ -23,7 +23,8 @@ export default function () {
     0.1,
     100
   );
-  camera.position.set(0, 0, 2);
+  camera.position.set(0, 0, 50);
+  camera.fov = Math.atan(canvasSize.height / 2 / 50) * (180 / Math.PI) * 2; // 노션 참고
 
   const loadImages = async () => {
     const images = [...document.querySelectorAll('main .content img')];
@@ -52,6 +53,9 @@ export default function () {
       });
       const geometry = new THREE.PlaneGeometry(width, height, 16, 16);
       const mesh = new THREE.Mesh(geometry, material);
+
+      mesh.position.y = canvasSize.height / 2 - height / 2  - top;
+      mesh.position.x = -canvasSize.width / 2 + width / 2 + left;
       
       return mesh;
     });
@@ -72,6 +76,7 @@ export default function () {
 
     camera.aspect = canvasSize.width / canvasSize.height;
     camera.updateProjectionMatrix();
+    camera.fov = Math.atan(canvasSize.height / 2 / 50) * (180 / Math.PI) * 2;
 
     renderer.setSize(canvasSize.width, canvasSize.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
