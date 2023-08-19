@@ -41,22 +41,29 @@ export default function () {
   }
 
   const createImages = (images) => {
-    const material = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      side: THREE.DoubleSide
+    
+    const imageMeshes = images.map(image => {
+      const {width, height, top, left} = image.getBoundingClientRect();
+
+      const material = new THREE.ShaderMaterial({
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        side: THREE.DoubleSide
+      });
+      const geometry = new THREE.PlaneGeometry(width, height, 16, 16);
+      const mesh = new THREE.Mesh(geometry, material);
+      
+      return mesh;
     });
-    const geometry = new THREE.PlaneGeometry(1, 1, 16, 16);
 
-    const mesh = new THREE.Mesh(geometry, material);
-
-    scene.add(mesh);
+    return imageMeshes;
   };
 
   const create = async () => {
     const loadedImages = await loadImages();
     const images = createImages([...loadedImages]);
-    scene.add(images);
+
+    scene.add(...images);
   }
 
   const resize = () => {
