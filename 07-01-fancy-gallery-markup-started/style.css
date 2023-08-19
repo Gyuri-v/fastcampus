@@ -71,6 +71,7 @@ main .content .img-wrapper{
 
 main .content .img-wrapper img{
   width: 100%;
+  opacity: 0;
 }
 
 main .content .description {

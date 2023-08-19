@@ -82,8 +82,8 @@ export default function () {
     canvasSize.height = window.innerHeight;
 
     camera.aspect = canvasSize.width / canvasSize.height;
-    camera.updateProjectionMatrix();
     camera.fov = Math.atan(canvasSize.height / 2 / 50) * (180 / Math.PI) * 2;
+    camera.updateProjectionMatrix();
 
     renderer.setSize(canvasSize.width, canvasSize.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -92,9 +92,12 @@ export default function () {
   const retransform = () => {
     imageRepository.forEach(({img, mesh}) => {
       const {width, height, top, left} = img.getBoundingClientRect();
+      const {width: originWidth} = mesh.geometry.parameters;
+      const scale = width / originWidth;
 
       mesh.position.y = canvasSize.height / 2 - height / 2  - top;
       mesh.position.x = -canvasSize.width / 2 + width / 2 + left;
+      mesh.scale.set(scale, scale);
     })
   }
 
