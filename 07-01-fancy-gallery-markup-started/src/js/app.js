@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import vertexShader from '../shaders/vertex.glsl?raw';
 import fragmentShader from '../shaders/fragment.glsl?raw';
-import ASScroll from '@ashthornton/asscroll'
+import ASScroll from '@ashthornton/asscroll';
+import gsap from 'gsap';
 
 const asscroll = new ASScroll({
   disableRaf: true,
@@ -115,10 +116,10 @@ export default function () {
     window.addEventListener('resize', resize);
     imageRepository.forEach(({img, mesh}) => {
       img.addEventListener('mouseenter', () => {
-        mesh.material.uniforms.uHover.value = 1;
+        gsap.to(mesh.material.uniforms.uHover, { value: 1, duration: .4, ease: 'Power1.inOut' });
       });
       img.addEventListener('mouseout', () => {
-        mesh.material.uniforms.uHover.value = 0;
+        gsap.to(mesh.material.uniforms.uHover, { value: 0, duration: .4, ease: 'Power1.inOut' });
       });
     })
   };
