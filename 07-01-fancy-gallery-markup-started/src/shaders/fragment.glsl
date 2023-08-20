@@ -1,4 +1,5 @@
 uniform sampler2D uTexture;
+uniform float uTime;
 
 varying vec2 vUv;
 
@@ -9,7 +10,7 @@ void main()
     float dir = dot(toCenter, vec2(1.0, 1.0)); // 이미지의 질감을 추가 - dot : toCenter와 (1.0, 1.0)사이의 내적을 구해보는 것(자연스러운 웨이브를 위해) = 빛으로부터 특정 정점의 방향이 얼마나 일치하는지 = 방향에 따른 질감
     float strength = 0.5;
 
-    vec2 wave = vec2(sin(dist * 20.0), cos(dist * 20.0));
+    vec2 wave = vec2(sin(dist * 20.0 - uTime * 5.0), cos(dist * 20.0 - uTime * 5.0));
     vec2 newUV = vUv + wave * strength * dir * dist; 
     // 1. vUv + wave : newUV 는 vUv 를 기본으로 가지고, + wave 를 해서 파동이 있게 만들어줌
     // 2. vUv + wave * strength : wave의 sin, cos 은 0~1이 아닌 -1~1 사이의 값을 가지게 되므로 *strength 해서 값을 작게처리 - 잘 보기 위해서

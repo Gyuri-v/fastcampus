@@ -22,6 +22,7 @@ export default function () {
     height: window.innerHeight,
   };
 
+  const clock = new THREE.Clock();
   const textureLoader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
@@ -55,6 +56,7 @@ export default function () {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTexture: null,
+        uTime: { value: 0 },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
@@ -117,6 +119,9 @@ export default function () {
 
     retransform();
     asscroll.update();
+    imageRepository.forEach(({img, mesh}) => {
+      mesh.material.uniforms.uTime.value = clock.getElapsedTime();
+    });
     
     requestAnimationFrame(() => {
       draw();
