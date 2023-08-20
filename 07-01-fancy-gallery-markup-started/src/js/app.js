@@ -22,6 +22,7 @@ export default function () {
     height: window.innerHeight,
   };
 
+  const textureLoader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
     75,
@@ -50,17 +51,23 @@ export default function () {
   }
 
   const createImages = (images) => {
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: null,
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      side: THREE.DoubleSide
+    });
     
     const imageMeshes = images.map(image => {
       const {width, height} = image.getBoundingClientRect();
 
-      const material = new THREE.ShaderMaterial({
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        side: THREE.DoubleSide
-      });
+      const clonedMaterial = material.clone();
+      clonedMaterial.uniforms.uTexture.value = textureLoader.load(image.src);
       const geometry = new THREE.PlaneGeometry(width, height, 16, 16);
-      const mesh = new THREE.Mesh(geometry, material);
+      const mesh = new THREE.Mesh(geometry, clonedMaterial);
 
       imageRepository.push({img: image, mesh});
       
