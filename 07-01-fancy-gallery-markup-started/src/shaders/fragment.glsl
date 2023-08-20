@@ -1,5 +1,6 @@
 uniform sampler2D uTexture;
 uniform float uTime;
+uniform float uHover;
 
 varying vec2 vUv;
 
@@ -11,7 +12,7 @@ void main()
     float strength = 0.5;
 
     vec2 wave = vec2(sin(dist * 20.0 - uTime * 5.0), cos(dist * 20.0 - uTime * 5.0));
-    vec2 newUV = vUv + wave * strength * dir * dist; 
+    vec2 newUV = vUv + wave * strength * dir * dist * uHover; 
     // 1. vUv + wave : newUV 는 vUv 를 기본으로 가지고, + wave 를 해서 파동이 있게 만들어줌
     // 2. vUv + wave * strength : wave의 sin, cos 은 0~1이 아닌 -1~1 사이의 값을 가지게 되므로 *strength 해서 값을 작게처리 - 잘 보기 위해서
     // 3. vUv + wave * strength * dir : 이미지의 질감을 추가 - 방향에 따른 질감 추가

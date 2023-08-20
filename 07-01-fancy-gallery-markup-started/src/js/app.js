@@ -57,6 +57,7 @@ export default function () {
       uniforms: {
         uTexture: null,
         uTime: { value: 0 },
+        uHover: { value: 0 },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
@@ -112,6 +113,14 @@ export default function () {
 
   const addEvent = () => {
     window.addEventListener('resize', resize);
+    imageRepository.forEach(({img, mesh}) => {
+      img.addEventListener('mouseenter', () => {
+        mesh.material.uniforms.uHover.value = 1;
+      });
+      img.addEventListener('mouseout', () => {
+        mesh.material.uniforms.uHover.value = 0;
+      });
+    })
   };
 
   const draw = () => {
