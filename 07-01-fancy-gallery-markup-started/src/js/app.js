@@ -12,6 +12,7 @@ asscroll.enable();
 export default function () {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
+    antialias: true,
   });
 
   const container = document.querySelector('#container');
@@ -23,6 +24,7 @@ export default function () {
     height: window.innerHeight,
   };
 
+  const raycaster = new THREE.Raycaster();
   const clock = new THREE.Clock();
   const textureLoader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
@@ -59,6 +61,8 @@ export default function () {
         uTexture: null,
         uTime: { value: 0 },
         uHover: { value: 0 },
+        uHoverX: { value: 0.5 },
+        uHoverY: { value: 0.5 },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
@@ -113,6 +117,26 @@ export default function () {
   }
 
   const addEvent = () => {
+    window.addEventListener('mousemove', (e) => {
+      const pointer = { 
+        x: (e.clientX / canvasSize.width) * 2 - 1,   // -1 ~ 1 사이의 값
+        y: -(e.clientY / canvasSize.height) * 2 + 1, // three.js 에서는 위로 올라가는게 + 내려가는게 - 니까 -를 앞에 붙여줌 & +1
+      }
+      
+      raycaster.setFromCamera(pointer, camera);
+
+      const intersects = raycaster.intersectObjects(scene.children);
+
+      if ( intersects.length > 0 ) {
+        let mesh = intersects[0].object;
+        mesh.material.uniforms.uHoverX.value = intersects[0].uv.x - 0.5; // 가운데에 호버했을때는 웨이브가 없도록 0.5를 중심으로 하기 위해 -0.5
+        mesh.material.uniforms.uHoverY.value = intersects[0].uv.y - 0.5;
+
+
+        console.log(mesh.material.uniforms.uHoverX, mesh.material.uniforms.uHoverY);
+      }
+    });
+
     window.addEventListener('resize', resize);
     imageRepository.forEach(({img, mesh}) => {
       img.addEventListener('mouseenter', () => {
